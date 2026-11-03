@@ -1,0 +1,18 @@
+[
+  {"id":"g1","name":"Everyday Relaxed Top","category":"top","type":"Casual","color":"#8270d8","occasions":"college,date","description":"Easy everyday styling","style_notes":"Pair with straight-fit denim for a complete look"},
+  {"id":"g2","name":"Evening Midi Dress","category":"dress","type":"Party","color":"#d85c79","occasions":"party,date","description":"A clean statement silhouette","style_notes":"Wear with block heels and minimal jewellery"},
+  {"id":"g3","name":"Classic Layer Jacket","category":"jacket","type":"Layering","color":"#263650","occasions":"college,office","description":"Smart layering essential","style_notes":"Layer over a plain shirt or turtleneck"},
+  {"id":"g4","name":"Minimal Cotton Tee","category":"tee","type":"Casual","color":"#e9dfd0","occasions":"college","description":"Simple and versatile","style_notes":"Style with anything"},
+  {"id":"g5","name":"Festive Kurta Style","category":"kurta","type":"Traditional","color":"#2c897c","occasions":"wedding,festival","description":"Traditional celebration look","style_notes":"Pair with churidar and dupatta"},
+  {"id":"g6","name":"Formal Work Shirt","category":"top","type":"Formal","color":"#263650","occasions":"interview,office","description":"Professional and polished","style_notes":"Tuck into tailored trousers"},
+  {"id":"g7","name":"Rose Occasion Dress","category":"dress","type":"Celebration","color":"#d85c79","occasions":"wedding,party","description":"Soft colour for special events","style_notes":"Accessorise minimally"},
+  {"id":"g8","name":"Weekend Overshirt","category":"jacket","type":"Casual","color":"#d69a43","occasions":"college,date","description":"Relaxed weekend layer","style_notes":"Wear open over a plain tee"},
+  {"id":"g9","name":"Elegant Maxi Dress","category":"dress","type":"Evening","color":"#263650","occasions":"party,wedding","description":"Floor-length drama piece","style_notes":"Pair with statement jewellery"},
+  {"id":"g10","name":"Smart Blazer","category":"jacket","type":"Formal","color":"#252536","occasions":"office,interview","description":"Power dressing essential","style_notes":"Works over both formal and smart-casual outfits"},
+  {"id":"g11","name":"Floral Kurta","category":"kurta","type":"Festive","color":"#d69a43","occasions":"festival,wedding","description":"Vibrant festive choice","style_notes":"Pair with contrast dupatta"},
+  {"id":"g12","name":"Oversized Hoodie","category":"tee","type":"Streetwear","color":"#8270d8","occasions":"college","description":"Urban casual comfort","style_notes":"Wear with straight-leg jeans and clean sneakers"},
+  {"id":"g13","name":"Wrap Midi Dress","category":"dress","type":"Smart Casual","color":"#2c897c","occasions":"date,party","description":"Versatile wrap silhouette","style_notes":"Flattering on all body types"},
+  {"id":"g14","name":"Linen Summer Shirt","category":"top","type":"Resort","color":"#e9dfd0","occasions":"college,date","description":"Breathable warm-weather top","style_notes":"Rolls up sleeves for a relaxed look"},
+  {"id":"g15","name":"Velvet Party Jacket","category":"jacket","type":"Evening","color":"#d85c79","occasions":"party,wedding","description":"Statement evening layer","style_notes":"Pair with a simple dress underneath"},
+  {"id":"g16","name":"Classic White Shirt","category":"top","type":"Classic","color":"#e9dfd0","occasions":"office,interview","description":"Wardrobe foundation piece","style_notes":"Crisp and versatile — tuck or leave out"}
+]

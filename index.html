@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>StyleSpeak — Virtual Fashion Studio</title>
+<!-- Preload MediaPipe Pose & Camera utilities for 60 FPS 3D AR Body Tracking -->
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+<!-- Preload Three.js 3D WebGL Engine, OrbitControls & GLTFLoader for real 3D volumetric garments -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<link rel="stylesheet" href="styles.css?v=5.0">
+</head>
+<body>
+<div class="app-shell">
+<aside class="sidebar">
+  <a class="brand" href="#"><span class="brand-mark">✳</span><span>style<span>speak</span></span></a>
+  <div class="workspace-label">WORKSPACE</div>
+  <!-- Home nav — default active -->
+  <button class="nav active" data-view="landing"><span>⌂</span> Home</button>
+  <button class="nav" data-view="overview"><span>◈</span> Overview</button>
+  <button class="nav" data-view="studio"><span>◫</span> Virtual Studio</button>
+  <button class="nav" data-view="assistant"><span>✧</span> Fashion Assistant</button>
+  <button class="nav" data-view="wardrobe"><span>▦</span> Outfit Catalogue</button>
+  <button class="nav" data-view="about"><span>⌘</span> About Project</button>
+  <button class="nav" data-view="settings"><span>⚙</span> Settings</button>
+  <div class="sidebar-note"><div class="note-icon">✦</div><b>Your style, your way.</b><p>Try looks, use your voice and discover outfits for every occasion.</p></div>
+  <div class="user-chip"><div class="avatar">ST</div><div><b>Guest User</b><small>Local demo workspace</small></div><span class="online"></span></div>
+</aside>
+<main class="main">
+<header class="topbar"><div><span class="muted">Workspace</span><span class="slash">/</span><b id="crumb">Home</b></div><div class="top-actions"><span class="local-badge" id="topBadge"><i></i> LOCAL DEMO</span><button class="help-btn" id="helpBtn">? Help</button><div class="avatar">ST</div></div></header>
+
+<!-- ═══════════════════ LANDING VIEW ═══════════════════ -->
+<section class="view active" id="view-landing">
+  <div class="hero-section">
+    <div class="hero-content">
+      <div class="eyebrow">YOUR AI-POWERED FASHION STUDIO</div>
+      <h1 class="hero-headline">Your wardrobe,<br><em>reimagined.</em></h1>
+      <p class="hero-sub">Try on outfits virtually, command your style with your voice, and get AI-powered recommendations for every occasion — all inside your browser, no data leaves your device.</p>
+      <button class="cta-btn" onclick="switchView('studio')">Enter Virtual Studio →</button>
+    </div>
+    <div class="hero-art">
+      <div class="hero-badge">✳</div>
+      <small>STYLESPEAK<br>COLLECTION 01</small>
+    </div>
+  </div>
+
+  <!-- Feature cards -->
+  <div class="eyebrow" style="margin:38px 0 14px">WHAT YOU CAN DO</div>
+  <div class="feature-grid">
+    <div class="feature-card" onclick="switchView('studio')">
+      <div class="feature-icon">▣</div>
+      <h3>01 · Capture</h3>
+      <p>Start your webcam or upload a full-length photo to use as your personal fitting room canvas.</p>
+      <span class="feature-tag">Webcam &amp; Upload</span>
+    </div>
+    <div class="feature-card" onclick="switchView('studio')">
+      <div class="feature-icon">◇</div>
+      <h3>02 · Virtual Try-On</h3>
+      <p>Overlay garments in any colour and size directly onto your photo. Switch categories instantly.</p>
+      <span class="feature-tag">Garment Preview</span>
+    </div>
+    <div class="feature-card" onclick="switchView('studio')">
+      <div class="feature-icon">⌁</div>
+      <h3>03 · Voice Control</h3>
+      <p>Say "show a red dress" or "change to navy" and watch the outfit update hands-free.</p>
+      <span class="feature-tag">Speech Recognition</span>
+    </div>
+    <div class="feature-card" onclick="switchView('assistant')">
+      <div class="feature-icon">✧</div>
+      <h3>04 · Fashion Assistant</h3>
+      <p>Pick an occasion and your built-in style engine recommends a coordinated look and colour palette.</p>
+      <span class="feature-tag">AI Recommendations</span>
+    </div>
+  </div>
+
+  <!-- How it works -->
+  <div class="how-it-works">
+    <div class="eyebrow" style="margin-bottom:22px">HOW IT WORKS</div>
+    <div class="steps-row">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h4>Capture yourself</h4>
+        <p>Open your webcam or upload a photo. Your image stays 100% local.</p>
+      </div>
+      <div class="step-connector">→</div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h4>Choose your look</h4>
+        <p>Pick a garment type and colour from the palette, or speak a voice command.</p>
+      </div>
+      <div class="step-connector">→</div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h4>Get recommendations</h4>
+        <p>Use the Fashion Assistant to get occasion-matched outfit ideas in seconds.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ OVERVIEW VIEW ═══════════════════ -->
+<section class="view" id="view-overview">
+  <div class="page-heading compact">
+    <div>
+      <div class="eyebrow">DASHBOARD / OVERVIEW</div>
+      <h1>What would you like<br><em>to do today?</em></h1>
+      <p>Jump to any module from here or follow the quick-start guide below to get the most out of StyleSpeak.</p>
+    </div>
+    <div class="heading-art"><span>◈</span><small>OVERVIEW<br>DASHBOARD</small></div>
+  </div>
+
+  <div class="overview-grid">
+    <div class="overview-card" onclick="switchView('studio')">
+      <div class="ov-icon">◫</div>
+      <div class="ov-body">
+        <h3>Virtual Studio</h3>
+        <p>Capture or upload a photo and try on garment overlays with live colour &amp; size controls.</p>
+        <span class="ov-link">Open Studio →</span>
+      </div>
+    </div>
+    <div class="overview-card" onclick="switchView('assistant')">
+      <div class="ov-icon">✧</div>
+      <div class="ov-body">
+        <h3>Fashion Assistant</h3>
+        <p>Select an occasion and receive a curated outfit recommendation with style notes.</p>
+        <span class="ov-link">Open Assistant →</span>
+      </div>
+    </div>
+    <div class="overview-card" onclick="switchView('wardrobe')">
+      <div class="ov-icon">▦</div>
+      <div class="ov-body">
+        <h3>Outfit Catalogue</h3>
+        <p>Browse 16 sample garments and send any style directly to the Virtual Studio.</p>
+        <span class="ov-link">Browse Catalogue →</span>
+      </div>
+    </div>
+    <div class="overview-card" onclick="switchView('settings')">
+      <div class="ov-icon">⚙</div>
+      <div class="ov-body">
+        <h3>Settings</h3>
+        <p>Configure voice language, speech rate, and check backend connectivity status.</p>
+        <span class="ov-link">Open Settings →</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick-start -->
+  <div class="panel" style="margin-top:24px">
+    <div class="eyebrow" style="margin-bottom:10px">QUICK-START GUIDE</div>
+    <ol class="qs-list">
+      <li>Click <b>Virtual Studio</b> in the sidebar and press <b>Start webcam</b> or <b>Upload photo</b>.</li>
+      <li>Use the <b>Garment Lab</b> to choose a category and colour, or say a voice command.</li>
+      <li>Head to <b>Fashion Assistant</b>, choose an occasion, and click <b>Generate outfit recommendation</b>.</li>
+      <li>Press <b>Try this outfit →</b> to send the suggested look straight to the studio.</li>
+    </ol>
+  </div>
+
+  <!-- Recent activity placeholder -->
+  <div class="panel" style="margin-top:14px">
+    <div class="eyebrow" style="margin-bottom:10px">RECENT ACTIVITY</div>
+    <p id="recentActivity" style="font-size:10px;color:#999;margin:0">No recent activity yet — start by trying on a garment in the Virtual Studio.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════ STUDIO VIEW ═══════════════════ -->
+<section class="view" id="view-studio">
+  <div class="page-heading"><div><div class="eyebrow">YOUR PERSONAL DIGITAL STYLIST</div><h1>Welcome to your<br><em>virtual fitting room.</em></h1><p>Preview outfit ideas, switch styles with your voice, and find a look for your next occasion.</p></div><div class="heading-art"><span>✳</span><small>STYLE STUDIO<br>COLLECTION 01</small></div></div>
+  <div class="module-row">
+    <div class="module-tile"><span class="tile-icon">▣</span><div><b>01 · Capture</b><small>Webcam and photo upload</small></div><span class="tile-check">READY</span></div>
+    <div class="module-tile"><span class="tile-icon">◇</span><div><b>02 · Virtual Try-On</b><small>Garment and colour preview</small></div><span class="tile-check">READY</span></div>
+    <div class="module-tile"><span class="tile-icon">⌁</span><div><b>03 · Voice Control</b><small>Hands-free commands</small></div><span class="tile-check">READY</span></div>
+    <div class="module-tile"><span class="tile-icon">✧</span><div><b>04 · Smart Stylist</b><small>Occasion recommendations</small></div><span class="tile-check">READY</span></div>
+  </div>
+  <div class="section-title"><div><div class="eyebrow">01 — 02 / CAPTURE &amp; VISUALIZATION</div><h2>Your fitting room</h2></div><span class="privacy">● IMAGE STAYS ON THIS DEVICE</span></div>
+  <div class="studio-grid">
+    <div class="panel preview-panel">
+      <div class="panel-head"><div><b>Live outfit preview</b><small>Start your camera or upload a photograph</small></div><span class="tag">PREVIEW CANVAS</span></div>
+      <div class="preview-stage" id="stage">
+        <video id="video" autoplay muted playsinline></video><img id="photo" alt="Uploaded user preview">
+        <!-- Real-time Three.js 3D WebGL volumetric cloth viewport -->
+        <canvas id="threeCanvas" aria-label="Three.js 3D garment viewport"></canvas>
+        <canvas id="poseCanvas" aria-label="Pose detection overlay"></canvas>
+        <div class="stage-3d-toggle">
+          <button type="button" id="view3dArBtn" class="active" title="Real-time 3D AR Body Fit">◉ 3D AR Body</button>
+          <button type="button" id="toggleMeshWireframeBtn" title="Toggle 3D Upper Body Mesh Wireframe">⚡ 3D Mesh</button>
+          <button type="button" id="view3dOrbitBtn" title="360° Free Orbit Inspector">↻ 360° Inspect</button>
+        </div>
+        <div class="empty-state" id="empty"><div class="empty-symbol">✳</div><b>Your fitting room is ready</b><span>Use your webcam or upload a full-length photo</span><small>For best results, use a well-lit, front-facing image.</small></div>
+        <div class="body-guide" id="guide"><span>POSITION YOURSELF IN FRAME</span></div>
+        <div class="garment-layer" id="garmentLayer"><svg id="garmentSvg" viewBox="0 0 240 280" aria-label="Virtual garment overlay"><path id="garmentPath" d="M72 20 103 6Q120 27 137 6l31 14 58 52-35 41-25-23 9 170H62l9-170-25 23L11 72Z" fill="#8270d8" stroke="#fff" stroke-width="3.5" stroke-linejoin="round"/><path d="M103 8Q120 45 137 8" fill="none" stroke="#ffffffaa" stroke-width="4"/><path d="M120 48v207" stroke="#ffffff44" stroke-width="2"/></svg></div>
+        <div class="stage-caption" id="stageCaption">3D VOLUMETRIC AR · READY</div>
+      </div>
+      <!-- Action buttons & Snapshot -->
+      <div class="action-row">
+        <button class="btn primary" id="cameraBtn">◎ Start webcam</button>
+        <label class="btn secondary" for="photoInput">↑ Upload photo</label>
+        <input id="photoInput" type="file" accept="image/png,image/jpeg,image/webp" hidden>
+        <button class="btn secondary" id="snapshotBtn" title="Take a picture wearing your try-on outfit">📸 Snapshot</button>
+        <button class="btn text-btn" id="retakeBtn">↺ Retake</button>
+        <button class="btn text-btn" id="removePhotoBtn">✕ Remove photo</button>
+      </div>
+
+      <!-- ANYWEAR LIVE AR FITTING DOCK -->
+      <div class="anywear-dock-wrapper">
+        <div class="anywear-dock-head">
+          <div>
+            <b>ANYWEAR LIVE AR FITTING DOCK</b>
+            <small style="display:block;font-size:8px;color:#898797;margin-top:2px">Click any real garment or upload custom clothing to see it fit on your live body</small>
+          </div>
+          <span class="anywear-badge">● LIVE 60 FPS</span>
+        </div>
+        <div class="anywear-carousel" id="anywearCarousel">
+          <div class="anywear-item active" data-cat="tee" data-img="assets/garments/tee_lavender.png" data-name="Lavender Cotton Tee" data-color="#8270d8">
+            <div class="anywear-thumb"><img src="assets/garments/tee_lavender.png" alt="Cotton Tee"></div>
+            <span>Cotton Tee</span>
+            <small>Casual</small>
+          </div>
+          <div class="anywear-item" data-cat="top" data-img="assets/garments/shirt_cream.png" data-name="Cream Oxford Shirt" data-color="#e9dfd0">
+            <div class="anywear-thumb"><img src="assets/garments/shirt_cream.png" alt="Oxford Shirt"></div>
+            <span>Oxford Shirt</span>
+            <small>Formal</small>
+          </div>
+          <div class="anywear-item" data-cat="jacket" data-img="assets/garments/blazer_navy.png" data-name="Navy Tailored Blazer" data-color="#263650">
+            <div class="anywear-thumb"><img src="assets/garments/blazer_navy.png" alt="Navy Blazer"></div>
+            <span>Navy Blazer</span>
+            <small>Tailored</small>
+          </div>
+          <div class="anywear-item" data-cat="kurta" data-img="assets/garments/kurta_teal.png" data-name="Festive Silk Kurta" data-color="#2c897c">
+            <div class="anywear-thumb"><img src="assets/garments/kurta_teal.png" alt="Silk Kurta"></div>
+            <span>Festive Kurta</span>
+            <small>Ethnic</small>
+          </div>
+          <div class="anywear-item" data-cat="dress" data-img="assets/garments/dress_rose.png" data-name="Rose Occasion Dress" data-color="#d85c79">
+            <div class="anywear-thumb"><img src="assets/garments/dress_rose.png" alt="Rose Dress"></div>
+            <span>Rose Dress</span>
+            <small>Evening</small>
+          </div>
+          <!-- Drag & Drop Custom Clothing Upload (Anywear feature) -->
+          <label class="anywear-upload-btn" for="customGarmentInput" title="Upload any picture of a t-shirt, shirt or dress from Zara, Nike, or your phone">
+            <span class="icon">＋</span>
+            <span>Upload Any Garment</span>
+            <input id="customGarmentInput" type="file" accept="image/png,image/jpeg,image/webp" hidden>
+          </label>
+        </div>
+      </div>
+
+      <!-- FASHN VTON COLAB GPU CONTROL CARD -->
+      <div id="fashnControlCard" class="fashn-card" style="display:none;margin-top:14px">
+        <div class="fashn-card-head">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="fashn-badge-pulse">⚡</span>
+            <div>
+              <b>FASHN VTON v1.5 Neural Try-On</b>
+              <small style="display:block;font-size:8px;color:#898797">Google Colab Cloud GPU + ngrok API</small>
+            </div>
+          </div>
+          <span class="anywear-badge" id="fashnStatusTag">CLOUD DIFFUSION</span>
+        </div>
+        <p style="font-size:10px;color:#6b677a;margin:8px 0;line-height:1.6">
+          Generates photorealistic garment synthesis with neural cloth folds, body shadows and texture blending using your Colab GPU notebook.
+        </p>
+        <div class="fashn-inputs-row">
+          <input id="studioFashnUrl" class="catalog-tools input" placeholder="Colab ngrok URL (e.g. https://xxxx.ngrok-free.app)" style="font-size:10px;padding:8px;flex:2">
+          <input id="studioFashnKey" type="password" class="catalog-tools input" placeholder="API key (optional)" style="font-size:10px;padding:8px;flex:1">
+          <button class="btn secondary" id="saveStudioFashnBtn" style="font-size:9px">💾 Save</button>
+        </div>
+        <button class="btn primary" id="runFashnBtn" style="width:100%;margin-top:10px;padding:12px;font-size:11px;font-weight:600">
+          ⚡ Run FASHN v1.5 Try-On on Colab GPU
+        </button>
+        <div id="fashnProgress" style="display:none;margin-top:10px;text-align:center;padding:12px;background:#f5f4fb;border-radius:6px">
+          <div class="fashn-spinner"></div>
+          <b style="font-size:11px;color:#4c3fa8;display:block;margin-top:6px">Synthesizing on Google Colab GPU…</b>
+          <small style="font-size:9px;color:#898797">FASHN VTON diffusion model is hallucinating cloth drape and shadows (~5–10s)</small>
+        </div>
+        <div id="fashnResultContainer" style="display:none;margin-top:12px"></div>
+      </div>
+      <div class="privacy-note">Privacy: images are processed locally in your browser and are not sent to an external server.</div>
+    </div>
+    <div class="side-stack">
+      <div class="panel controls-panel">
+        <div class="panel-title"><div><div class="eyebrow">02 / GARMENT LAB</div><h3>Customize your look</h3></div><span class="round-icon">◇</span></div>
+        <label class="field-label">TRY-ON ENGINE MODE</label>
+        <div class="mode-switch-group">
+          <button type="button" class="mode-btn active" id="arModeBtn">◉ 3D AR Live (Anywear)</button>
+          <button type="button" class="mode-btn" id="fashnModeBtn">⚡ FASHN VTON (Colab)</button>
+          <button type="button" class="mode-btn" id="manualModeBtn">▦ 2D Manual</button>
+        </div>
+        <label class="field-label" for="category">GARMENT CATEGORY</label>
+        <select id="category">
+          <option value="top">Casual top</option>
+          <option value="dress">Dress</option>
+          <option value="jacket">Jacket</option>
+          <option value="tee">T-shirt</option>
+          <option value="kurta">Kurta</option>
+        </select>
+        <label class="field-label">COLOUR PALETTE</label>
+        <div class="swatches">
+          <button class="swatch selected" data-color="#8270d8" aria-label="Lavender" style="--swatch:#8270d8"></button>
+          <button class="swatch" data-color="#d85c79" aria-label="Rose" style="--swatch:#d85c79"></button>
+          <button class="swatch" data-color="#2c897c" aria-label="Teal" style="--swatch:#2c897c"></button>
+          <button class="swatch" data-color="#d69a43" aria-label="Amber" style="--swatch:#d69a43"></button>
+          <button class="swatch" data-color="#263650" aria-label="Navy" style="--swatch:#263650"></button>
+          <button class="swatch" data-color="#e9dfd0" aria-label="Cream" style="--swatch:#e9dfd0"></button>
+          <button class="swatch" data-color="#262626" aria-label="Black" style="--swatch:#262626"></button>
+        </div>
+        <div id="manualSlidersGroup" style="display:none">
+          <label class="field-label" for="position">OVERLAY POSITION</label>
+          <input id="position" class="range" type="range" min="30" max="70" value="50">
+          <div class="range-label"><span>LEFT</span><span>RIGHT</span></div>
+          <label class="field-label" for="scale">OVERLAY SIZE</label>
+          <input id="scale" class="range" type="range" min="70" max="130" value="100">
+          <div class="range-label"><span>SMALL</span><span>LARGE</span></div>
+        </div>
+        <!-- 3D AR Body tracking status badge -->
+        <label class="field-label">REAL-TIME 3D BODY TRACKING</label>
+        <button class="pose-toggle active" id="poseToggle">◉ 3D AR BODY FIT: ON</button>
+        <div class="pose-status" id="poseStatus" style="color:#319b79">3D AR: Active — auto-fits to your body on webcam at 60 FPS</div>
+        <div class="disclaimer">Real-time 3D AR mode fits garments to your posture at 60 FPS. Switch to FASHN VTON for photorealistic neural diffusion synthesis.</div>
+      </div>
+      <div class="voice-panel">
+        <div class="voice-header"><div class="voice-icon">⌁</div><div><div class="eyebrow">03 / VOICE STYLIST</div><h3>Say it. Style it.</h3></div><span class="ready">● READY</span></div>
+        <button class="listen-btn" id="listenBtn">🎙 &nbsp; Start voice control</button>
+        <p id="voiceStatus">Try "change to red", "show a dress", or "make it navy".</p>
+      </div>
+    </div>
+  </div>
+  <div class="bottom-tip"><span>✦</span><div><b>Quick tip</b><small>Try the voice command "show a red dress" to change both the garment and its colour.</small></div></div>
+</section>
+
+<!-- ═══════════════════ FASHION ASSISTANT VIEW ═══════════════════ -->
+<section class="view" id="view-assistant">
+ <div class="page-heading compact"><div><div class="eyebrow">04 / SMART FASHION ASSISTANT</div><h1>Dress for the <em>moment.</em></h1><p>Choose an occasion and let your built-in fashion assistant suggest a coordinated look.</p></div><div class="heading-art"><span>✧</span><small>STYLE ADVISOR<br>PERSONAL EDITION</small></div></div>
+ <div class="assistant-layout">
+  <div class="panel assistant-form">
+    <div class="eyebrow">TELL US ABOUT YOUR PLAN</div><h2>Where are you going?</h2>
+    <p>Our local recommendation engine uses occasion, style preferences and colour rules to suggest a starting look.</p>
+    <label class="field-label" for="occasion">OCCASION</label>
+    <select id="occasion">
+      <option value="college">College / Everyday</option>
+      <option value="interview">Job interview</option>
+      <option value="office">Office / Business meeting</option>
+      <option value="party">Party / Night out</option>
+      <option value="wedding">Wedding / Celebration</option>
+      <option value="date">Date</option>
+      <option value="festival">Festival / Traditional event</option>
+      <!-- Expanded occasions -->
+      <option value="birthday">Birthday Party</option>
+      <option value="casual">Casual Party</option>
+      <option value="traditional">Traditional Event</option>
+    </select>
+    <label class="field-label" for="stylePreference">PREFERRED STYLE</label>
+    <select id="stylePreference">
+      <option value="balanced">Surprise me</option>
+      <option value="minimal">Minimal</option>
+      <option value="classic">Classic</option>
+      <option value="bold">Bold / Statement</option>
+      <option value="traditional">Traditional</option>
+    </select>
+    <label class="field-label" for="weather">WEATHER / COMFORT</label>
+    <select id="weather">
+      <option value="any">No preference</option>
+      <option value="warm">Warm weather</option>
+      <option value="cool">Cool weather / layering</option>
+    </select>
+    <button class="btn primary full" id="recommendBtn">Generate outfit recommendation →</button>
+  </div>
+  <div class="recommend-result panel" id="recommendResult">
+    <div class="result-placeholder"><span>✧</span><b>Your outfit idea will appear here</b><small>Choose an occasion and generate your recommendation.</small></div>
+  </div>
+ </div>
+</section>
+
+<!-- ═══════════════════ WARDROBE / CATALOGUE VIEW ═══════════════════ -->
+<section class="view" id="view-wardrobe">
+ <div class="page-heading compact"><div><div class="eyebrow">YOUR LOCAL GARMENT REPOSITORY</div><h1>Explore the <em>catalogue.</em></h1><p>Browse sample garments and send a selected style directly to the virtual studio.</p></div></div>
+ <div class="catalog-tools">
+  <input id="catalogSearch" placeholder="Search garments or colours…">
+  <select id="catalogCategory">
+    <option value="all">All categories</option>
+    <option value="top">Tops</option>
+    <option value="dress">Dresses</option>
+    <option value="jacket">Jackets</option>
+    <option value="tee">T-shirts</option>
+    <option value="kurta">Traditional</option>
+  </select>
+ </div>
+ <div class="catalog-grid" id="catalogGrid"></div>
+</section>
+
+<!-- ═══════════════════ ABOUT VIEW ═══════════════════ -->
+<section class="view" id="view-about">
+ <div class="page-heading compact"><div><div class="eyebrow">PROJECT OVERVIEW</div><h1>Technology meets <em>personal style.</em></h1><p>A modular prototype for voice-controlled virtual outfit visualization and fashion assistance.</p></div></div>
+ <div class="about-grid">
+  <div class="panel about-card"><div class="eyebrow">PROJECT OBJECTIVE</div><h2>One fitting room. Four connected modules.</h2><p>StyleSpeak demonstrates how image input, virtual garment visualization, voice interaction and occasion-based recommendations can be combined in a browser-based fashion assistant.</p></div>
+  <div class="panel about-card"><div class="eyebrow">IMPLEMENTED TECHNOLOGIES</div><div class="tech-list"><span>HTML5</span><span>CSS3</span><span>JavaScript</span><span>Webcam API</span><span>Web Speech API</span><span>SVG</span><span>LocalStorage</span><span>Rule-based NLP</span><span>MediaPipe Pose</span><span>Speech Synthesis</span></div></div>
+ </div>
+ <div class="panel scope-card">
+  <div class="eyebrow">IMPLEMENTATION STATUS</div>
+  <div class="scope-row"><b>01 · User Input &amp; Capture</b><span class="status-done">IMPLEMENTED</span><small>Webcam preview, photo upload and local image handling.</small></div>
+  <div class="scope-row"><b>02 · Virtual Outfit Try-On</b><span class="status-done">DEMO IMPLEMENTED</span><small>Garment overlay, categories, colour, position and size controls.</small></div>
+  <div class="scope-row"><b>03 · Voice Control + TTS</b><span class="status-done">IMPLEMENTED*</span><small>Browser speech recognition + speech synthesis feedback where supported.</small></div>
+  <div class="scope-row"><b>04 · Smart Fashion Assistant</b><span class="status-done">IMPLEMENTED</span><small>Built-in occasion and style rule engine with catalogue matching (10 occasions).</small></div>
+  <div class="scope-row"><b>05 · Pose Detection</b><span class="status-done">OPTIONAL</span><small>MediaPipe Pose loaded on demand; shoulder tracking auto-centres garment overlay.</small></div>
+  <p class="scope-footnote">*Voice recognition availability depends on browser support and microphone permission. No external AI API is required. Realistic pose-aware AI garment synthesis is not part of this demo build.</p>
+ </div>
+</section>
+
+<!-- ═══════════════════ SETTINGS VIEW ═══════════════════ -->
+<section class="view" id="view-settings">
+  <div class="page-heading compact">
+    <div>
+      <div class="eyebrow">PREFERENCES &amp; CONFIGURATION</div>
+      <h1>App <em>Settings.</em></h1>
+      <p>Adjust voice behaviour, review privacy information and check backend connectivity.</p>
+    </div>
+    <div class="heading-art"><span>⚙</span><small>SETTINGS<br>PREFERENCES</small></div>
+  </div>
+
+  <div class="settings-grid">
+    <!-- Voice settings -->
+    <div class="panel settings-section">
+      <div class="eyebrow" style="margin-bottom:10px">VOICE SETTINGS</div>
+      <h3 class="settings-heading">Voice Control</h3>
+      <label class="field-label" for="voiceLangSelect">RECOGNITION LANGUAGE</label>
+      <select id="voiceLangSelect">
+        <option value="en-IN" selected>English (India) — en-IN</option>
+        <option value="en-US">English (US) — en-US</option>
+        <option value="en-GB">English (UK) — en-GB</option>
+      </select>
+      <label class="field-label" for="voiceRateSlider">SPEECH FEEDBACK RATE</label>
+      <input id="voiceRateSlider" class="range" type="range" min="0.5" max="2" step="0.1" value="1.0">
+      <div class="range-label"><span>SLOW</span><span id="voiceRateDisplay">1.0×</span><span>FAST</span></div>
+      <div class="disclaimer" style="margin-top:12px">Voice commands and TTS feedback use the Web Speech API built into your browser. No audio is sent to any external server.</div>
+    </div>
+
+    <!-- Appearance -->
+    <div class="panel settings-section">
+      <div class="eyebrow" style="margin-bottom:10px">APPEARANCE</div>
+      <h3 class="settings-heading">Theme</h3>
+      <p style="font-size:10px;color:#898797;line-height:1.8">StyleSpeak currently uses a clean <b>light mode</b> design. Dark mode and custom accent colours are planned for a future release. The lavender (#7866c9) brand palette is applied throughout.</p>
+      <div class="settings-badge">✦ Light mode only</div>
+    </div>
+
+    <!-- Privacy -->
+    <div class="panel settings-section">
+      <div class="eyebrow" style="margin-bottom:10px">PRIVACY</div>
+      <h3 class="settings-heading">Local Processing</h3>
+      <p style="font-size:10px;color:#898797;line-height:1.8">All image processing, garment overlays and outfit recommendations run entirely in your browser. No photos, voice recordings or personal data are transmitted to any external server. Saved outfit ideas are stored in your browser's <code>localStorage</code>.</p>
+      <div class="settings-badge" style="color:#319b79">● 100% local &amp; private</div>
+    </div>
+
+    <!-- FASHN VTON Colab GPU Settings -->
+    <div class="panel settings-section">
+      <div class="eyebrow" style="margin-bottom:10px">NEURAL VTON ENGINE</div>
+      <h3 class="settings-heading">FASHN VTON v1.5 (Colab / ngrok)</h3>
+      <p style="font-size:10px;color:#898797;line-height:1.8">Connect your Google Colab GPU notebook running FASHN VTON v1.5 via ngrok tunnel for photorealistic diffusion virtual try-on.</p>
+      <label class="field-label" for="fashnUrlInput">COLAB / NGROK API ENDPOINT</label>
+      <input id="fashnUrlInput" class="catalog-tools input" placeholder="e.g. https://xxxx-xx.ngrok-free.app or Colab URL" style="font-size:10px;padding:8px;margin-bottom:8px">
+      <label class="field-label" for="fashnKeyInput">API KEY / TOKEN (OPTIONAL)</label>
+      <input id="fashnKeyInput" type="password" class="catalog-tools input" placeholder="Paste API token or leave blank" style="font-size:10px;padding:8px;margin-bottom:10px">
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="btn secondary" id="saveFashnBtn" style="font-size:9px">💾 Save FASHN Endpoint</button>
+        <span id="fashnSaveStatus" style="font-size:8px;color:#319b79;display:none">● Saved</span>
+      </div>
+    </div>
+
+    <!-- Backend status -->
+    <div class="panel settings-section">
+      <div class="eyebrow" style="margin-bottom:10px">BACKEND STATUS</div>
+      <h3 class="settings-heading">API Connectivity</h3>
+      <p style="font-size:10px;color:#898797;line-height:1.8">StyleSpeak works fully in demo mode without a backend. If a local FastAPI backend is running on port 8000, extended features are available.</p>
+      <div id="backendStatus" class="backend-status">Backend: checking…</div>
+      <button class="btn secondary" id="recheckBackend" style="margin-top:10px;font-size:9px">↻ Re-check connection</button>
+    </div>
+  </div>
+</section>
+
+<footer><b>stylespeak</b><span>Voice-controlled AR outfit try-on &amp; fashion assistance · Academic prototype</span><span>LOCAL BUILD 1.0</span></footer>
+</main>
+</div>
+<div class="toast" id="toast"></div>
+<div class="modal-backdrop" id="helpModal"><div class="modal"><button class="modal-close" id="closeHelp">×</button><div class="eyebrow">QUICK GUIDE</div><h2>How to demo StyleSpeak</h2><ol><li>Start webcam or upload a full-length photo.</li><li>Choose a garment category and colour.</li><li>Use voice commands such as "change to red" or "show a jacket".</li><li>Open Fashion Assistant and choose an occasion.</li><li>Send a recommended outfit to the Virtual Studio.</li></ol><p>Tip: Run on localhost using the included start script so browser camera permissions work.</p></div></div>
+<script src="app.js?v=8.0"></script>
+</body></html>

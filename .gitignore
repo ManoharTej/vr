@@ -1,0 +1,70 @@
+# StyleSpeak — .gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+*.so
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env/
+ENV/
+
+# Environment variables
+.env
+*.env.local
+
+# SQLite database
+*.db
+*.sqlite3
+backend/stylespeak.db
+
+# Uploaded user images (never commit user data)
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Node / npm
+node_modules/
+.next/
+.nuxt/
+out/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+pip-log.txt
+npm-debug.log*
+
+# Build outputs
+*.min.js
+*.min.css
+
+# Test / coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# MediaPipe model cache
+*.tflite
+*.task
+
