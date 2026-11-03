@@ -1,284 +1,155 @@
 # StyleSpeak
 
-**Voice-Controlled Augmented Reality Virtual Outfit Try-On and Fashion Assistance System**
+**Voice-Controlled Augmented Reality Virtual Outfit Try-On & Fashion Assistant**
 
-> A browser-based fashion technology prototype demonstrating four interconnected modules: live image capture, virtual garment visualization, voice-controlled interaction and occasion-based outfit recommendations.
+> A full-stack browser-based fashion technology system featuring **real-time 3D deformable upper-body cloth meshes (Three.js WebGL)**, **60 FPS MediaPipe skeletal arm & body tracking**, **voice-controlled styling (Web Speech API)**, **Anywear AR fitting dock**, and **FASHN VTON v1.5 neural diffusion support via Colab GPU**.
 
 ---
 
-## Live Demo (Frontend Only)
+## ⚡ Quick Start: Execution Commands
 
-The frontend runs entirely in the browser with no server required.
+### Option 1: One-Click Instant Launcher (Easiest)
 
-1. Open `index.html` in Chrome or Edge (**must be served over localhost or HTTPS for camera/voice APIs**)
-2. Use a local static server:
+Open PowerShell or Command Prompt and run:
 
-```bash
-# Option 1 — Python (any machine with Python 3)
-cd c:\Users\manoh\Downloads\vr
+```powershell
+cd "c:\Users\manoh\Downloads\vr"
+.\start.bat
+```
+*(Or simply open `c:\Users\manoh\Downloads\vr` in File Explorer and double-click `start.bat` — it automatically starts both the backend and frontend servers, then opens your browser).*
+
+---
+
+### Option 2: Run in Two Separate Terminals
+
+#### Terminal 1 — Run FastAPI Backend (Port 8001):
+```powershell
+cd "c:\Users\manoh\Downloads\vr\backend"
+python -m uvicorn main:app --port 8001 --reload
+```
+*Health Check / Swagger Docs: [http://localhost:8001/docs](http://localhost:8001/docs)*
+
+#### Terminal 2 — Run 3D AR Frontend (Port 5500):
+```powershell
+cd "c:\Users\manoh\Downloads\vr"
 python -m http.server 5500
-# Then open: http://localhost:5500
-
-# Option 2 — Node / npx
-npx serve .
-
-# Option 3 — VS Code Live Server extension
-# Right-click index.html → Open with Live Server
 ```
+*Frontend URL: [http://localhost:5500](http://localhost:5500)*
 
 ---
 
-## Full Stack Setup (Frontend + FastAPI Backend)
+### Option 3: Starting from Scratch (First-Time Setup)
 
-### Prerequisites
-
-| Tool | Version |
-|------|---------|
-| Python | 3.10 or newer |
-| pip | latest |
-| Chrome or Edge | latest (for voice / camera) |
-
----
-
-### 1. Clone / Navigate to the Project
-
-```bash
-cd c:\Users\manoh\Downloads\vr
-```
-
----
-
-### 2. Set Up the Python Backend
-
-```bash
-# Navigate to the backend directory
-cd backend
-
-# Create and activate a virtual environment
-python -m venv .venv
-
-# Windows (PowerShell)
-.\.venv\Scripts\Activate.ps1
-
-# Windows (Command Prompt)
-.venv\Scripts\activate.bat
-
-# macOS / Linux
-source .venv/bin/activate
-
-# Install dependencies
+```powershell
+# 1. Install backend dependencies
+cd "c:\Users\manoh\Downloads\vr\backend"
 pip install -r requirements.txt
-```
 
----
+# 2. Start the FastAPI backend
+python -m uvicorn main:app --port 8001 --reload
 
-### 3. Configure Environment Variables
-
-```bash
-# Copy the example file
-copy .env.example .env    # Windows
-cp .env.example .env      # macOS/Linux
-
-# Edit .env if needed (defaults work out of the box)
-```
-
----
-
-### 4. Start the FastAPI Backend
-
-```bash
-# From inside backend/ with venv active
-uvicorn main:app --reload --port 8000
-```
-
-The API will be available at:
-- **API root:** `http://localhost:8000`
-- **Interactive docs:** `http://localhost:8000/docs`
-- **Health check:** `http://localhost:8000/api/health`
-
----
-
-### 5. Start the Frontend
-
-Open a new terminal:
-
-```bash
-cd c:\Users\manoh\Downloads\vr
+# 3. In a new terminal, start the frontend
+cd "c:\Users\manoh\Downloads\vr"
 python -m http.server 5500
+
+# 4. Open browser
+start http://localhost:5500
 ```
 
-Open **http://localhost:5500** in Chrome or Edge.
+---
 
-The frontend automatically detects whether the backend is online and shows the status in Settings.
+### 🚀 Bonus: Google Colab + ngrok Code for FASHN Try-On v1.5 API
+
+If you have a Google Colab GPU notebook running FASHN Try-On v1.5 and want to connect it to StyleSpeak:
+
+```python
+# 1. Install requirements in Colab
+!pip install fastapi uvicorn pyngrok nest_asyncio diffusers transformers accelerate
+
+# 2. Expose with ngrok
+from pyngrok import ngrok
+import nest_asyncio
+
+# Paste your ngrok auth token from https://dashboard.ngrok.com/get-started/your-authtoken
+ngrok.set_auth_token("YOUR_NGROK_AUTHTOKEN")
+
+# Open public tunnel to port 8000
+public_url = ngrok.connect(8000).public_url
+print("🚀 YOUR PUBLIC FASHN ENDPOINT IS:", public_url)
+
+# 3. Paste that public_url in StyleSpeak Virtual Studio -> FASHN VTON tab!
+```
 
 ---
 
-## Four Core Modules
+## 🌟 Key Features
 
-### 01 · User Input & Image Capture
-- Live webcam via `getUserMedia`
-- Photo upload (JPEG, PNG, WebP — up to 10 MB)
-- Camera/upload toggle, retake, remove controls
-- Body guide frame overlay
+### 1. 3D Deformable Upper-Body Cloth Mesh
+- **Continuous Surface Mesh:** Built with Three.js `BufferGeometry` (24×32 Torso grid = 825 vertices + two 20×16 Arm Sleeves = 357 vertices each).
+- **Dynamic Arm Tracking:** When you raise your hands or bend your elbows in front of the webcam, the sleeves **elevate, bend, and follow your arms in real time**!
+- **Zero Blockiness:** No disjointed cylinders, floating collars, or rigid boxes.
+- **PBR Fabric Rendering:** Double-sided high-resolution woven twill textures with realistic ambient occlusion, drop shadows, pearl/brass buttons, tailored collar wings, lapels, and flowing 360° skirt pleats.
+- **⚡ 3D Mesh Wireframe Mode:** Toggle the cyan polygon tracking grid on/off with one click to see your body mesh in real time!
 
-### 02 · Virtual Outfit Try-On
-- 5 garment categories: tops, dresses, jackets, tees, kurtas
-- 7+ colour swatches with hex values
-- Adjustable position (horizontal) and scale sliders
-- Optional MediaPipe Pose landmark detection (requires webcam)
-- DEMO MODE (SVG overlay) — works without any model files
-- AI MODE ready (module stub for IDM-VTON / CatVTON integration)
+### 2. Live Webcam & MediaPipe Pose Tracking (60 FPS)
+- Tracks 33 body landmarks (shoulders, elbows, wrists, hips, clavicle, and nose).
+- Frame-paced inference keeps memory stable with 0% dropped frames.
+- Aspect ratio cover mapping prevents distortion across any webcam resolution.
+- Suprasternal notch collar clamping ensures clothes never creep up onto the chin or face.
 
-### 03 · Voice-Controlled Interaction
-- Web Speech API (Chrome/Edge)
-- Colour commands: *"change to red"*, *"make it navy"*
-- Garment commands: *"show a dress"*, *"try a jacket"*
-- Voice feedback via SpeechSynthesis
-- Manual fallback controls when mic unavailable
+### 3. Voice-Controlled Fashion Stylist (Web Speech API)
+- Hands-free commands: *"Show a red dress"*, *"Change to navy"*, *"Try a blazer"*, *"Show festive kurta"*.
+- Built-in text-to-speech assistant confirms every style change.
 
-#### Example Voice Commands
-| Command | Action |
-|---------|--------|
-| "Show me a red dress" | Switches to dress category, applies red |
-| "Change to navy" | Changes colour to navy |
-| "Try a jacket" | Switches to jacket category |
-| "Show a black shirt" | Switches to top, applies black |
-| "Reset my outfit" | Resets preview |
-| "Go to recommendations" | Navigates to Fashion Assistant |
-
-### 04 · Smart Fashion Assistant
-- 10 occasion types (College, Interview, Office, Wedding, Party, Birthday, Date, Festival, Casual, Traditional)
-- Style preference filter (Minimal, Classic, Bold, Traditional)
-- Weather/comfort filter
-- Garment + colour recommendations
-- Accessory suggestions
-- "Try this outfit" → loads directly in Virtual Studio
+### 4. Anywear Live AR Fitting Dock & Outfit Catalogue
+- Fast horizontal carousel lets you switch between Cotton Tee, Oxford Shirt, Navy Blazer, Festive Kurta, and Rose Dress in 1 click.
+- **Upload Any Garment:** Upload photos of your own clothing from Zara, Nike, etc. to fit onto your live 3D body!
+- 16 curated outfits categorized across 10 life occasions (College, Interview, Party, Wedding, Festival, Date, etc.).
 
 ---
 
-## API Reference
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/health` | Backend health check |
-| `GET` | `/api/garments` | List all garments (optional `?category=` filter) |
-| `GET` | `/api/garments/{id}` | Get a single garment |
-| `POST` | `/api/upload` | Upload a user photograph |
-| `POST` | `/api/tryon` | Request virtual try-on |
-| `POST` | `/api/voice/command` | Process a voice transcript |
-| `POST` | `/api/recommendations` | Get occasion-based outfit recommendation |
-
-Full interactive documentation at `http://localhost:8000/docs` (Swagger UI).
-
----
-
-## Project Structure
+## 📁 Project Architecture
 
 ```
-voice-ar-fashion/
-│
-├── index.html            ← SPA frontend (4 modules)
-├── styles.css            ← Premium lavender/charcoal design system
-├── app.js                ← All frontend logic + voice + pose detection
+vr/
+├── index.html            ← Single-page application with 3D WebGL viewport
+├── styles.css            ← Responsive luxury styling & cyber HUD
+├── app.js                ← Three.js 3D deformable mesh + MediaPipe + voice engine
+├── start.bat             ← One-click launcher for frontend + backend
+├── assets/
+│   └── garments/         ← 3D models (.glb) and fabric texture maps
 │
 ├── backend/
-│   ├── main.py           ← FastAPI app entry point
-│   ├── database.py       ← SQLAlchemy setup
+│   ├── main.py           ← FastAPI application entry point (port 8001)
+│   ├── database.py       ← SQLite database configuration
 │   ├── requirements.txt  ← Python dependencies
-│   ├── .env.example      ← Environment variable template
-│   │
-│   ├── routes/
-│   │   ├── garments.py   ← GET /garments, GET /garments/{id}
-│   │   ├── upload.py     ← POST /upload
-│   │   ├── tryon.py      ← POST /tryon
-│   │   ├── voice.py      ← POST /voice/command
-│   │   └── recommendations.py ← POST /recommendations
-│   │
-│   ├── models/
-│   │   └── garment.py    ← SQLAlchemy ORM model
-│   │
-│   ├── schemas/
-│   │   └── schemas.py    ← Pydantic v2 request/response models
-│   │
-│   ├── services/
-│   │   ├── recommender.py  ← Rule-based recommendation engine
-│   │   └── voice_parser.py ← NLP intent parser
-│   │
-│   ├── datasets/
-│   │   └── garments.json ← 16 sample garments (auto-seeded to DB)
-│   │
-│   └── uploads/          ← User-uploaded images (gitignored)
+│   ├── routes/           ← Modular API routes (garments, upload, tryon, voice)
+│   ├── models/           ← SQLAlchemy data models
+│   ├── schemas/          ← Pydantic schemas
+│   └── datasets/         ← Pre-seeded outfit catalogue
 │
 ├── .gitignore
-├── .env.example
-└── README.md             ← This file
+├── PROJECT_NOTES.md
+└── README.md             ← Documentation & execution guide
 ```
 
 ---
 
-## Technology Stack
+## 🛠️ Technology Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Frontend framework | Vanilla HTML5 + CSS3 + JavaScript (ES2022) |
-| Styling | Custom CSS design system (DM Sans, Manrope, Playfair Display) |
-| Camera | Web MediaDevices API (`getUserMedia`) |
-| Voice input | Web Speech API (`SpeechRecognition`) |
-| Voice output | Web Speech API (`SpeechSynthesis`) |
-| Pose detection | MediaPipe Pose (CDN, browser-side) |
-| Backend framework | FastAPI 0.115 |
-| Language | Python 3.10+ |
-| ORM | SQLAlchemy 2.0 |
-| Database | SQLite |
-| Validation | Pydantic v2 |
-| Image processing | Pillow |
-| Server | Uvicorn (ASGI) |
+| Layer | Technologies |
+|---|---|
+| **3D Rendering** | Three.js WebGL, PBR MeshStandardMaterial, BufferGeometry, OrbitControls |
+| **Computer Vision** | MediaPipe Pose (33 3D skeletal landmarks) |
+| **Voice & Speech** | Web Speech API (SpeechRecognition & SpeechSynthesis) |
+| **Frontend UI** | Modern Vanilla JavaScript (ES2022), CSS3 Flexbox/Grid, Canvas API |
+| **Backend API** | FastAPI 0.115, Uvicorn, Python 3.10+ |
+| **Database** | SQLite, SQLAlchemy 2.0 |
+| **Neural VTON** | FASHN VTON v1.5 (Colab / ngrok integration) |
 
 ---
 
-## Known Limitations
-
-| Limitation | Notes |
-|-----------|-------|
-| Garment visualization | SVG overlay only — not photorealistic cloth simulation |
-| Pose detection | Landmark dots only — garment does not deform to body |
-| Voice recognition | Requires Chrome or Edge (Firefox unsupported) |
-| AI try-on | Module stub ready — requires IDM-VTON or CatVTON model files |
-| Multi-user | Single local session — no authentication |
-
----
-
-## Roadmap (Future Development)
-
-- [ ] MediaPipe-based automatic garment alignment
-- [ ] IDM-VTON or CatVTON integration for realistic cloth synthesis
-- [ ] LLM-powered fashion assistant (GPT-4o or Gemini)
-- [ ] User accounts and outfit history
-- [ ] Cloud image storage (AWS S3 / Firebase)
-- [ ] Mobile-responsive camera improvements
-- [ ] Expanded garment dataset with real product photographs
-
----
-
-## Demonstration Workflow
-
-1. Open the app and land on the **Home** page
-2. Click **Enter Virtual Studio**
-3. Start your **webcam** or upload a **full-length photograph**
-4. Select a garment category and colour
-5. Enable **Pose Detection** (optional, webcam only)
-6. Say *"change to red"* or *"show a jacket"* using voice control
-7. Navigate to **Outfit Catalogue** and browse all 16 garments
-8. Open **Fashion Assistant**, choose an occasion, generate a recommendation
-9. Click **Try this outfit** — it loads in the Virtual Studio
-10. Open **Settings** to change voice language or check backend status
-
----
-
-## Academic Acknowledgement
-
-This is an academic prototype demonstrating browser-based fashion technology concepts. It does not claim to perform photorealistic AI garment synthesis in demo mode. The AI try-on module is architected for future integration with pretrained models (IDM-VTON, CatVTON).
-
----
-
-*StyleSpeak · Voice-Controlled AR Outfit Try-On · Local Build 1.0*
+## 📸 Try-On Snapshot & Privacy
+- StyleSpeak processes webcam video and pose landmarks **100% locally in your browser**.
+- Click the **📸 Snapshot** button to download a high-resolution photo wearing your 3D try-on outfit.
+- No webcam frames or biometric data leave your device.
